@@ -1,4 +1,4 @@
-# shelly
+# Shelly
 A simple shell written in C++
 
 The original shell was written by:
