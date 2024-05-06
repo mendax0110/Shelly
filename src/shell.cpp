@@ -57,7 +57,13 @@ Shell::Shell(char **env) : env_ptr(env), userID(getpwuid(getuid())->pw_name), cu
         {"bg", &Shell::bg},
         {"kill", &Shell::kill_id},
         {"shmalloc", &Shell::shmalloc},
-        {"shmdel", &Shell::shmdel}
+        {"shmdel", &Shell::shmdel},
+        {"ls", &Shell::ls},
+        {"cat", &Shell::cat},
+        {"ps", &Shell::ps},
+        {"rm", &Shell::rm},
+        {"mkdir", &Shell::makeDir},
+        {"rmdir", &Shell::removeDir}
     };
 
     clearEnvironment();
@@ -499,6 +505,106 @@ void Shell::shmdel(string args)
     s >> name;
     shm_unlink(name.c_str());
 }
+
+void Shell::ls(string args)
+{
+    string path;
+    istringstream s(args);
+    s >> path;
+    DIR *directory = opendir(path.c_str());
+    if (directory)
+    {
+        struct dirent *entry;
+        while ((entry = readdir(directory)) != nullptr)
+        {
+            cout << entry->d_name << endl;
+        }
+    }
+    else
+    {
+        cout << "Directory " << path << " not found" << endl;
+    }
+}
+
+void Shell::cat(string args)
+{
+    string path;
+    istringstream s(args);
+    s >> path;
+    ifstream file(path);
+    if (file.is_open())
+    {
+        string line;
+        while (getline(file, line))
+        {
+            cout << line << endl;
+        }
+        file.close();
+    }
+    else
+    {
+        cout << "File " << path << " not found" << endl;
+    }
+}
+
+void Shell::ps(string args)
+{
+    string path = "/proc";
+    DIR *directory = opendir(path.c_str());
+    if (directory)
+    {
+        struct dirent *entry;
+        while ((entry = readdir(directory)) != nullptr)
+        {
+            if (isdigit(entry->d_name[0]))
+            {
+                string statPath = path + "/" + string(entry->d_name) + "/stat";
+                ifstream statFile(statPath);
+                if (statFile.is_open())
+                {
+                    string line;
+                    getline(statFile, line);
+                    cout << line << endl;
+                    statFile.close();
+                }
+            }
+        }
+    }
+}
+
+void Shell::makeDir(string args)
+{
+    string path;
+    istringstream s(args);
+    s >> path;
+    if (mkdir(path.c_str(), 0777) == -1)
+    {
+        cout << "Error creating directory" << endl;
+    }
+}
+
+void Shell::removeDir(string args)
+{
+    string path;
+    istringstream s(args);
+    s >> path;
+    if (rmdir(path.c_str()) == -1)
+    {
+        cout << "Error removing directory" << endl;
+    }
+}
+
+void Shell::rm(string args)
+{
+    string path;
+    istringstream s(args);
+    s >> path;
+    if (remove(path.c_str()) == -1)
+    {
+        cout << "Error removing file" << endl;
+    }
+}
+
 
 void Shell::change_status(int pid, const string &stat)
 {

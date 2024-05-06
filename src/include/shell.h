@@ -67,6 +67,12 @@ namespace shelly
         void kill_id(std::string args);
         void shmalloc(std::string args);
         void shmdel(std::string args);
+        void ls(std::string args);
+        void cat(std::string args);
+        void ps(std::string args);
+        void rm(std::string args);
+        void makeDir(std::string args);
+        void removeDir(std::string args);
         void clearEnvironment();
         char *getCurrentDir(void);
 
